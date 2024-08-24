@@ -1,0 +1,25 @@
+{
+    "dev": {
+      "driver": "mysql",
+      "host": "localhost",
+      "user": {"ENV": "DB_USERNAME"},
+      "password": {"ENV": "DB_PASSWORD"},
+      "database": {"ENV": "DB_NAME"}
+    },
+  
+    "test": {
+      "driver": "mysql",
+      "host": "localhost",
+      "user": {"ENV": "DB_USERNAME"},
+      "password": {"ENV": "DB_PASSWORD"},
+      "database": {"ENV": "DB_NAME"}
+    },
+  
+    "prod": {
+      "driver": "mysql",
+      "host": "localhost",
+      "user": {"ENV": "DB_USERNAME"},
+      "password": {"ENV": "DB_PASSWORD"},
+      "database": {"ENV": "DB_NAME"}
+    }
+}
