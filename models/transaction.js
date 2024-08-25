@@ -69,7 +69,10 @@ exports.getTransactions = async (response, statement) => {
            const coba = dataProduct.map((row) => {
             
             const productList = rows.filter(product => product.uid == row.uid);
-            console.log(productList);
+            const total = productList.reduce((acc, product) => {
+                return acc + (product.price * product.qty);
+            }, 0);
+            
             return {
                 uid: row.uid,
                 transactionDate: row.transactionDate,
@@ -77,7 +80,8 @@ exports.getTransactions = async (response, statement) => {
                     name: row.customerName,
                     email: row.email
                 },
-                productList: productList
+                productList: productList,
+                total: total
             }
         });
 
@@ -161,5 +165,33 @@ exports.deleteTransaction = (response, searchStatement, deleteStatement, id) => 
         } else {
             return response.status(404).json({ success: false, message: 'Data tidak ditemukan!' });
         }
+    });
+};
+
+exports.getFavorite = async (response, statement, id) => {
+    // jalankan query
+    const sql = ` WITH cst AS ( SELECT customer.uid, customer.name AS customerName, product.name AS productName,COUNT(product.name) AS total
+	FROM 
+	transaction JOIN customer ON transaction.customerId = customer.uid JOIN  transactionproductlist ON transaction.uid = transactionproductlist.transactionId
+	JOIN product ON transactionproductlist.ProductId = product.uid GROUP BY transaction.customerId, product.uid)  
+    (
+    SELECT customerName, MAX(productName) AS favorite  FROM cst GROUP BY uid
+    )
+    `
+    if (id == null) {
+        return response.status(400).json({ message: 'Id tidak boleh kosong' });
+    }
+    pool.query(sql, id, (err, rows, field) => {
+        // error handling
+       
+        if (err) {
+            return response.status(500).json({ message: 'Ada kesalahan', error: err });
+        }
+        if (rows.length < 1) {
+            return response.status(404).json({ message: 'Data tidak ditemukan!', success: false });
+        }
+
+        // jika request berhasil
+        responseData(response, 200, rows);
     });
 };
